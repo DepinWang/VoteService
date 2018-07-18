@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cmbchina.depin.dao.PartyDao">
+    <resultMap id="party" type="com.cmbchina.depin.model.Party">
+        <result column="party_id" property="partyId" jdbcType="INTEGER"/>
+        <result column="party_theme" property="partyTheme" jdbcType="VARCHAR"/>
+        <result column="party_create_time" property="partyCreateTime" jdbcType="TIMESTAMP"/>
+        <result column="party_activity_time" property="partyActivityTime" jdbcType="TIMESTAMP"/>
+        <result column="party_description" property="partyDescription" jdbcType="VARCHAR"/>
+        <result column="party_owner_id" property="partyOwnerId" jdbcType="INTEGER"/>
+        <result column="party_place_id" property="partyPlaceId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--获取当前用户参与的所有party的信息-->
+    <select id="selectPartyByUserId" parameterType="int" resultMap="party">
+        SELECT * FROM party WHERE party_owner_id = #{userId}
+    </select>
+
+    <!--获取当前最大partyId-->
+    <select id="getMaxPartyId" resultType="int">
+        SELECT max(party_id) FROM party;
+    </select>
+
+    <!--插入party信息到party表-->
+    <insert id="insertPartyInfo" parameterType="com.cmbchina.depin.model.Party" >
+        INSERT INTO party(party_id, party_theme, party_create_time, party_activity_time, party_description, party_owner_id, party_place_id)
+        VALUES (#{partyId}, #{partyTheme}, #{partyCreateTime}, #{partyActivityTime}, #{partyDescription}, #{partyOwnerId}, 0)
+    </insert>
+
+    <!--根据partyid获取party信息-->
+    <select id="getPartyInfoByPartyId" parameterType="int" resultMap="party">
+        SELECT * FROM party WHERE party_id = #{partyId}
+    </select>
+
+    <update id="setPartyPlaceIdByPartyId" parameterType="int">
+        UPDATE party SET party_place_id = #{0} WHERE party_id = #{1}
+    </update>
+
+    <select id="gePartyInfoByPartyId" parameterType="int" resultMap="party">
+        SELECT * FROM party WHERE party_id = #{partyId}
+    </select>
+
+    <select id="getPartyByDate" parameterType="String" resultMap="party">
+        SELECT * FROM party WHERE date(party_activity_time) = tempDate
+    </select>
+</mapper>

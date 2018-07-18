@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cmbchina.depin.dao.SelectionDao">
+    <resultMap id="selection" type="com.cmbchina.depin.model.Selection">
+        <result column="party_id" property="partyId" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="place_id" property="placeId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--获取共多少人被邀请投票，当前有多少人投了票-->
+    <select id="getPartyStateByPartyId" parameterType="int" resultMap="selection">
+        SELECT COUNT(user_id) user_id, COUNT(place_id) place_id FROM selection WHERE party_id=#{partyId}
+    </select>
+
+    <!--获取某一个party中被选中最多的place_id-->
+    <select id="getMostSelectedPlaceIdByPartyId" parameterType="int" resultType="int">
+        SELECT place_id FROM selectionCount WHERE party_id = #{partyId} and count_place_id in (SELECT max(count_place_id)
+        FROM selectionCount WHERE party_id = #{partyId})
+    </select>
+
+    <!--初始化注册表-->
+    <insert id="initSelectionWhenLaunchParty">
+        INSERT INTO selection(party_id, user_id, place_id)
+        VALUES (#{0}, #{1}, null)
+    </insert>
+
+    <!--用户做出投票-->
+    <update id="doYourSelection" parameterType="com.cmbchina.depin.model.Selection">
+        update selection set place_id=#{placeId} where party_id = #{partyId} and user_id = #{userId};
+    </update>
+
+    <!--获取被邀请投票的party的id-->
+    <select id="getPartyIdWhoCalledMeUndo" parameterType="int" resultType="int">
+        SELECT party_id FROM selection WHERE user_id = #{userId} AND place_id IS NULL
+    </select>
+
+    <select id="getPartyIdWhoCalledMeDone" parameterType="int" resultType="int">
+        SELECT party_id FROM selection WHERE user_id = #{userId} AND place_id IS NOT NULL
+    </select>
+
+    <select id="getPlaceIdByPartyIdAndUserId" resultType="int">
+        SELECT place_id FROM selection WHERE party_id = #{0} AND user_id = #{1}
+    </select>
+
+    <!--<insert id="updateSelectionWhenDoChoice" parameterType="com.cmbchina.depin.model.Selection">-->
+        <!--INSERT INTO selection(party_id, user_id, place_id) VALUES (#{partyId}, #{userId}, #{placeId})-->
+    <!--</insert>-->
+
+    <update id="updateSelectionWhenDoChoice" parameterType="com.cmbchina.depin.model.Selection">
+        UPDATE selection set place_id = #{placeId} WHERE party_id = #{partyId} AND user_id = #{userId}
+    </update>
+
+    <select id="getSelectionResultByPartyId" parameterType="int" resultMap="selection">
+        SELECT  place_id, count(place_id) user_id FROM selection WHERE party_id=#{partyId} GROUP BY place_id
+    </select>
+</mapper>

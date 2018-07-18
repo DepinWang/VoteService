@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cmbchina.depin.dao.LaunchPartyDao">
+    <resultMap id="launchParty" type="com.cmbchina.depin.model.LaunchParty">
+        <result column="party_id" property="partyId" jdbcType="INTEGER"/>
+        <result column="place_id" property="placeId" jdbcType="INTEGER"/>
+    </resultMap>
+    <!--select, insert, delete, update-->
+
+    <!--发起活动后注册-->
+    <insert id="insertIntoLaunchParty" parameterType="com.cmbchina.depin.model.LaunchParty">
+        INSERT INTO launch_party(party_id, place_id) VALUES (#{partyId}, #{placeId})
+--         INSERT INTO launch_party(party_id, place_id) VALUES ({partyId}, {placeId})
+    </insert>
+
+    <!--通过获取place id达到获取place信息的目的-->
+    <select id="getPlaceIdByPartyId" parameterType="int" resultType="int">
+        SELECT place_id FROM launch_Party WHERE party_id = #{partyId}
+    </select>
+</mapper>
